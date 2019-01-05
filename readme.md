@@ -9,7 +9,7 @@ TODO: support react native
 ## Installation
 
 ```sh
-npm install --save secure-remote-password
+npm install --save https://github.com/jaros/srp-rfc5054.git
 ```
 
 ## Usage
@@ -19,7 +19,7 @@ npm install --save secure-remote-password
 When creating an account with the server, the client will provide a salt and a verifier for the server to store. They are calculated by the client as follows:
 
 ```js
-const srp = require('secure-remote-password/client')
+const srp = require('secure-remote-password/client')()
 
 // These should come from the user signing up
 const username = 'linus@folkdatorn.se'
@@ -47,7 +47,7 @@ Authenticating with the server involves mutliple steps.
 **1** - The client generates a secret/public ephemeral value pair.
 
 ```js
-const srp = require('secure-remote-password/client')
+const srp = require('secure-remote-password/client')()
 
 // This should come from the user logging in
 const username = 'linus@folkdatorn.se'
@@ -83,7 +83,7 @@ console.log(serverEphemeral.public)
 **3** - The client can now derive the shared strong session key, and a proof of it to provide to the server.
 
 ```js
-const srp = require('secure-remote-password/client')
+const srp = require('secure-remote-password/client')()
 
 // This should come from the user logging in
 const password = '$uper$ecret'
@@ -122,7 +122,7 @@ console.log(serverSession.proof)
 **5** - Finally, the client can verify that the server have derived the correct strong session key, using the proof that the server sent back.
 
 ```js
-const srp = require('secure-remote-password/client')
+const srp = require('secure-remote-password/client')()
 
 srp.verifySession(clientEphemeral.public, clientSession, serverSessionProof)
 
@@ -134,7 +134,7 @@ srp.verifySession(clientEphemeral.public, clientSession, serverSessionProof)
 ### `Client`
 
 ```js
-const Client = require('secure-remote-password/client')
+const Client = require('secure-remote-password/client')()
 ```
 
 #### `Client.generateSalt() => string`
