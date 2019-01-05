@@ -4,7 +4,10 @@
   "license": "MIT",
   "repository": "github:jaros/srp-rfc5054",
   "scripts": {
-    "test": "standard && mocha"
+    "test": "standard && jest"
+  },
+  "jest": {
+    "testEnvironment": "node"
   },
   "browser": {
     "./lib/sha256.js": "./browser/sha256.js"
@@ -20,7 +23,7 @@
   },
   "devDependencies": {
     "apisauce": "^1.0.2",
-    "mocha": "^5.2.0",
+    "jest": "^23.6.0",
     "standard": "^10.0.3"
   }
 }
