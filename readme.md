@@ -2,6 +2,10 @@
 
 A modern [SRP](http://srp.stanford.edu) implementation for Node.js and Web Browsers.
 
+TODO: support react native
+
+## the following description is taken from npm library `secure-remote-password`
+
 ## Installation
 
 ```sh
