@@ -1,8 +1,8 @@
 {
-  "name": "secure-remote-password",
-  "version": "0.3.1",
+  "name": "srp-rfc5054",
+  "version": "1.0.0",
   "license": "MIT",
-  "repository": "LinusU/secure-remote-password",
+  "repository": "github:jaros/srp-rfc5054",
   "scripts": {
     "test": "standard && mocha"
   },
@@ -19,6 +19,7 @@
     "pad-start": "^1.0.2"
   },
   "devDependencies": {
+    "apisauce": "^1.0.2",
     "mocha": "^5.2.0",
     "standard": "^10.0.3"
   }

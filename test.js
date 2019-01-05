@@ -1,14 +1,42 @@
 /* eslint-env mocha */
+const apisauce = require('apisauce')
 
 const assert = require('assert')
 
-const client = require('./client')
+const client = require('./client').init('default')
 const server = require('./server')
 const SRPInteger = require('./lib/srp-integer')
 
 const { BigInteger } = require('jsbn')
 const paramsFun = require('./lib/params')
 const params = paramsFun()
+
+const api = apisauce.create({
+  baseURL: 'http://192.168.1.39:8080',
+  timeout: 15000
+})
+
+describe('call api', () => {
+  const srpClient = require('./client').init('1024-bit')
+  const username = 'jaros@github.com'
+  const password = '$uper$imple'
+
+  it('signup', async () => {
+    const salt = client.generateSalt()
+    const privateKey = client.derivePrivateKey(salt, username, password)
+    const verifier = SRPInteger.fromHex(client.deriveVerifier(privateKey)).toString()
+    const challenge = {
+      'id': username,
+      's': salt,
+      'g': srpClient.params().g.toString(),
+      'N': srpClient.params().N.toString(),
+      'v': verifier
+    }
+    console.log(challenge)
+    // const res = await api.post('/signup', challenge)
+    // console.log(res)
+  })
+})
 
 describe('test params', () => {
   it('calculate k param at 1024-bit group', () => {
