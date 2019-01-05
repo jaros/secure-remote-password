@@ -7,11 +7,24 @@ const server = require('./server')
 const SRPInteger = require('./lib/srp-integer')
 
 const { BigInteger } = require('jsbn')
-
-const params = require('./lib/params')
+const paramsFun = require('./lib/params')
+const params = paramsFun()
 
 describe('test params', () => {
-  it('calculate k param', () => {
+  it('calculate k param at 1024-bit group', () => {
+    let params = paramsFun('1024-bit')
+    console.log(params.N.toString())
+    console.log(params.g.toString())
+    const kHex = params.k.toHex()
+    console.log(kHex)
+    const kBi = new BigInteger(kHex, 16)
+    console.log(kBi.toString(16))
+    assert.strictEqual(kBi.toString(16), '1a1a4c140cde70ae360c1ec33a33155b1022df951732a476a862eb3ab8206a5c')
+  })
+
+  it('calculate k param at 2048-bit group', () => {
+    console.log(params.N.toString())
+    console.log(params.g.toString())
     const kHex = params.k.toHex()
     console.log(kHex)
     const kBi = new BigInteger(kHex, 16)

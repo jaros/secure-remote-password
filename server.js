@@ -1,6 +1,6 @@
 'use strict'
 
-const params = require('./lib/params')
+const params = require('./lib/params')()
 const SRPInteger = require('./lib/srp-integer')
 
 exports.generateEphemeral = function (verifier) {
