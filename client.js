@@ -5,6 +5,39 @@ const SRPInteger = require('./lib/srp-integer')
 
 exports.init = (bitGroup) => {
   const params = paramsFun(bitGroup)
+
+  const deriveEphemeralPublicKey = (a) => {
+    // N      A large safe prime (N = 2q+1, where q is prime)
+    // g      A generator modulo N
+    const { N, g } = params
+
+    // A = g^a                  (a = random number)
+    return g.modPow(a, N)
+  }
+
+  const calculateS = (B, a, u, x) => {
+    const { N, g, k } = params
+    // S = (B - kg^x) ^ (a + ux)
+    return B.subtract(k.multiply(g.modPow(x, N))).modPow(a.add(u.multiply(x)), N)
+  }
+
+  const calculateU = (A, B) => {
+    const { H, PAD } = params
+    // u = H(PAD(A), PAD(B))
+    return H(PAD(A), PAD(B))
+  }
+
+  const calculateSecretEvidence = (A, B, S, s, I) => {
+    const { H, PAD } = params
+
+    // M = H(H(N) xor H(g), H(I), s, A, B, K)
+    // return H(H(N).xor(H(g)), H(I), s, A, B, K)
+
+    // TODO for compatibility with server implementation use following formula for M1 calculation
+    // M = H(A,B,S)
+    return H(PAD(A), PAD(B), PAD(S))
+  }
+
   return {
     params: () => params,
 
@@ -49,7 +82,7 @@ exports.init = (bitGroup) => {
     generateEphemeral: () => {
       // A = g^a                  (a = random number)
       const a = SRPInteger.randomInteger(params.hashOutputBytes)
-      const A = this.deriveEphemeralPublicKey(a)
+      const A = deriveEphemeralPublicKey(a)
 
       return {
         secret: a.toHex(),
@@ -57,14 +90,7 @@ exports.init = (bitGroup) => {
       }
     },
 
-    deriveEphemeralPublicKey: (a) => {
-      // N      A large safe prime (N = 2q+1, where q is prime)
-      // g      A generator modulo N
-      const { N, g } = params
-
-      // A = g^a                  (a = random number)
-      return g.modPow(a, N)
-    },
+    deriveEphemeralPublicKey: deriveEphemeralPublicKey,
 
     deriveSession: (clientSecretEphemeral, serverPublicEphemeral, salt, username, privateKey) => {
       // N      A large safe prime (N = 2q+1, where q is prime)
@@ -86,7 +112,7 @@ exports.init = (bitGroup) => {
       const x = SRPInteger.fromHex(privateKey)
 
       // A = g^a                  (a = random number)
-      const A = this.deriveEphemeralPublicKey(a)
+      const A = deriveEphemeralPublicKey(a)
 
       // B % N > 0
       if (B.mod(N).equals(SRPInteger.ZERO)) {
@@ -95,16 +121,18 @@ exports.init = (bitGroup) => {
       }
 
       // u = H(PAD(A), PAD(B))
-      const u = this.calculateU(A, B)
+      const u = calculateU(A, B)
 
       // S = (B - kg^x) ^ (a + ux)
-      const S = this.calculateS(B, a, u, x)
+      const S = calculateS(B, a, u, x)
 
       // K = H(S)
       const K = H(S)
 
       // M = H(H(N) xor H(g), H(I), s, A, B, K)
-      const M = H(H(N).xor(H(g)), H(I), s, A, B, K)
+      // const M = H(H(N).xor(H(g)), H(I), s, A, B, K)
+
+      const M = calculateSecretEvidence(A, B, S, s, I)
 
       return {
         key: K.toHex(),
@@ -112,17 +140,11 @@ exports.init = (bitGroup) => {
       }
     },
 
-    calculateS: (B, a, u, x) => {
-      const {N, g, k} = params
-      // S = (B - kg^x) ^ (a + ux)
-      return B.subtract(k.multiply(g.modPow(x, N))).modPow(a.add(u.multiply(x)), N)
-    },
+    calculateSecretEvidence,
 
-    calculateU: (A, B) => {
-      const { H, PAD } = params
-      // u = H(PAD(A), PAD(B))
-      return H(PAD(A), PAD(B))
-    },
+    calculateS,
+
+    calculateU,
 
     verifySession: (clientPublicEphemeral, clientSession, serverSessionProof) => {
       // H()    One-way hash function

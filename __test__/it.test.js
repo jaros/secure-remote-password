@@ -62,10 +62,11 @@ describe('call api', () => {
 
     const clientEphemeral = client1024Bit.generateEphemeral() // A and a
     console.log('client Aa', clientEphemeral)
+    const A = SRPInteger.fromHex(clientEphemeral.public).toString()
 
     const stepTwo = await api.post('/auth/challenge/a', {}, {
       params: {
-        A: SRPInteger.fromHex(clientEphemeral.public).toString(),
+        A,
         sessionId
       }
     })
@@ -78,6 +79,7 @@ describe('call api', () => {
 // try to calculate M1 in a simple way like in bouncycastle lib
     const M1 = SRPInteger.fromHex(clientSession.proof).toString()
 
+    console.log('sendind secret proof M1', M1)
     const stepThree = await api.post('/auth/challenge/m', {}, {
       params: {
         M1,
@@ -169,7 +171,7 @@ describe('test params', () => {
 
     const s = client1024Bit.calculateS(B, a, u, x).toHex()
 
-    console.log('calculated u', s)
+    console.log('calculated s', s)
     expect(withoutLeadingZeros(s)).toBe(expectedS)
   })
 

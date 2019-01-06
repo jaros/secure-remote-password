@@ -61,7 +61,9 @@ exports.deriveSession = function (serverSecretEphemeral, clientPublicEphemeral, 
   const K = H(S)
 
   // M = H(H(N) xor H(g), H(I), s, A, B, K)
-  const M = H(H(N).xor(H(g)), H(I), s, A, B, K)
+  // const M = H(H(N).xor(H(g)), H(I), s, A, B, K)
+  // TODO temp fix to be compatible with remote server implementation
+  const M = H(PAD(A), PAD(B), PAD(S))
 
   const expected = M
   const actual = SRPInteger.fromHex(clientSessionProof)
