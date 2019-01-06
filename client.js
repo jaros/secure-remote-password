@@ -47,10 +47,6 @@ exports.init = (bitGroup) => {
     },
 
     generateEphemeral: () => {
-      // N      A large safe prime (N = 2q+1, where q is prime)
-      // g      A generator modulo N
-      const { N, g } = params
-
       // A = g^a                  (a = random number)
       const a = SRPInteger.randomInteger(params.hashOutputBytes)
       const A = this.deriveEphemeralPublicKey(a)
@@ -61,7 +57,14 @@ exports.init = (bitGroup) => {
       }
     },
 
-    deriveEphemeralPublicKey: (a) => params.g.modPow(a, params.N),
+    deriveEphemeralPublicKey: (a) => {
+      // N      A large safe prime (N = 2q+1, where q is prime)
+      // g      A generator modulo N
+      const { N, g } = params
+
+      // A = g^a                  (a = random number)
+      return g.modPow(a, N)
+    },
 
     deriveSession: (clientSecretEphemeral, serverPublicEphemeral, salt, username, privateKey) => {
       // N      A large safe prime (N = 2q+1, where q is prime)
@@ -83,7 +86,7 @@ exports.init = (bitGroup) => {
       const x = SRPInteger.fromHex(privateKey)
 
       // A = g^a                  (a = random number)
-      const A = g.modPow(a, N)
+      const A = this.deriveEphemeralPublicKey(a)
 
       // B % N > 0
       if (B.mod(N).equals(SRPInteger.ZERO)) {
@@ -92,7 +95,7 @@ exports.init = (bitGroup) => {
       }
 
       // u = H(PAD(A), PAD(B))
-      const u = H(PAD(A), PAD(B))
+      const u = this.calculateU(A, B)
 
       // S = (B - kg^x) ^ (a + ux)
       const S = B.subtract(k.multiply(g.modPow(x, N))).modPow(a.add(u.multiply(x)), N)
@@ -107,6 +110,12 @@ exports.init = (bitGroup) => {
         key: K.toHex(),
         proof: M.toHex()
       }
+    },
+
+    calculateU: (A, B) => {
+      const { H, PAD } = params
+      // u = H(PAD(A), PAD(B))
+      return H(PAD(A), PAD(B))
     },
 
     verifySession: (clientPublicEphemeral, clientSession, serverSessionProof) => {
