@@ -98,7 +98,7 @@ exports.init = (bitGroup) => {
       const u = this.calculateU(A, B)
 
       // S = (B - kg^x) ^ (a + ux)
-      const S = B.subtract(k.multiply(g.modPow(x, N))).modPow(a.add(u.multiply(x)), N)
+      const S = this.calculateS(B, a, u, x)
 
       // K = H(S)
       const K = H(S)
@@ -110,6 +110,12 @@ exports.init = (bitGroup) => {
         key: K.toHex(),
         proof: M.toHex()
       }
+    },
+
+    calculateS: (B, a, u, x) => {
+      const {N, g, k} = params
+      // S = (B - kg^x) ^ (a + ux)
+      return B.subtract(k.multiply(g.modPow(x, N))).modPow(a.add(u.multiply(x)), N)
     },
 
     calculateU: (A, B) => {

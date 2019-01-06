@@ -160,6 +160,19 @@ describe('test params', () => {
     expect(withoutLeadingZeros(u)).toBe(expectedU)
   })
 
+  test('calculate secret S at 1024-bit group', () => {
+    let a = SRPInteger.fromHex('60975527035CF2AD1989806F0407210BC81EDC04E2762A56AFD529DDDA2D4393')
+    let x = SRPInteger.fromHex('65ac38dff8bc34ae0f259e91fbd0f4ca2fa43081c9050cec7cac20d015f303')
+    let u = SRPInteger.fromHex('e23c86988192822d7a1fb2648214b65ac406882840d10295d77afeeda469a7f5')
+    let B = SRPInteger.fromHex('bd0c61512c692c0cb6d041fa01bb152d4916a1e77af46ae105393011baf38964dc46a0670dd125b95a981652236f99d9b681cbf87837ec996c6da04453728610d0c6ddb58b318885d7d82c7f8deb75ce7bd4fbaa37089e6f9c6059f388838e7a00030b331eb76840910440b1b27aaeaeeb4012b7d7665238a8e3fb004b117b58')
+    let expectedS = '810f04455dec662a6697958c59d724af8a4021aff8be89935c2501b3d52ea8b86e6a8cda3dd5d2a2b24942ca29e97203e6419f83250ce66c270a6f88009eb3c894d2aa6a12f633aa10f0a1b80c347439db39bd239a6e9cfc1902136258f7898739a14bcddb162cc42b1ac216f39606ca35703b757f2da38cfd77541c4bb74388'
+
+    const s = client1024Bit.calculateS(B, a, u, x).toHex()
+
+    console.log('calculated u', s)
+    expect(withoutLeadingZeros(s)).toBe(expectedS)
+  })
+
   test('calculate k param at 2048-bit group', () => {
     const params = client2048Bit.params()
     console.log(params.N.toString())
