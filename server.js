@@ -74,7 +74,8 @@ exports.deriveSession = function (serverSecretEphemeral, clientPublicEphemeral, 
   }
 
   // P = H(A, M, K)
-  const P = H(A, M, K)
+  // TODO for compatibility with server implementation use following formula for M2 calculation
+  const P = H(PAD(A), PAD(M), PAD(S))
 
   return {
     key: K.toHex(),

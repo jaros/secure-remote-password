@@ -89,7 +89,7 @@ describe('call api', () => {
 
     const serverProof = stepThree.data.M2
     console.log('M2:', serverProof)
-    // client.verifySession(clientEphemeral.public, clientSession, serverSession.proof)
+    client1024Bit.verifySession(clientEphemeral.public, clientSession, SRPInteger.fromDecimal(serverProof).toHex())
   })
 
   test('ping server', async () => {

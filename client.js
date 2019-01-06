@@ -136,7 +136,8 @@ exports.init = (bitGroup) => {
 
       return {
         key: K.toHex(),
-        proof: M.toHex()
+        proof: M.toHex(),
+        secret: S.toHex()
       }
     },
 
@@ -148,22 +149,25 @@ exports.init = (bitGroup) => {
 
     verifySession: (clientPublicEphemeral, clientSession, serverSessionProof) => {
       // H()    One-way hash function
-      const { H } = params
+      const { H, PAD } = params
 
       // A      Public ephemeral values
       // M      Proof of K
       // K      Shared, strong session key
       const A = SRPInteger.fromHex(clientPublicEphemeral)
       const M = SRPInteger.fromHex(clientSession.proof)
-      const K = SRPInteger.fromHex(clientSession.key)
+      const S = SRPInteger.fromHex(clientSession.secret)
 
       // H(A, M, K)
-      const expected = H(A, M, K)
+      // TODO for compatibility with server implementation use following formula for M2 calculation
+      const expected = H(PAD(A), PAD(M), PAD(S))
       const actual = SRPInteger.fromHex(serverSessionProof)
 
       if (!actual.equals(expected)) {
         // fixme: .code, .statusCode, etc.
         throw new Error('Server provided session proof is invalid')
+      } else {
+        console.log('OK - server session proved')
       }
     }
   }
