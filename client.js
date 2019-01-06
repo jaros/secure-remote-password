@@ -53,13 +53,15 @@ exports.init = (bitGroup) => {
 
       // A = g^a                  (a = random number)
       const a = SRPInteger.randomInteger(params.hashOutputBytes)
-      const A = g.modPow(a, N)
+      const A = this.deriveEphemeralPublicKey(a)
 
       return {
         secret: a.toHex(),
         public: A.toHex()
       }
     },
+
+    deriveEphemeralPublicKey: (a) => params.g.modPow(a, params.N),
 
     deriveSession: (clientSecretEphemeral, serverPublicEphemeral, salt, username, privateKey) => {
       // N      A large safe prime (N = 2q+1, where q is prime)

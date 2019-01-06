@@ -139,6 +139,16 @@ describe('test params', () => {
     expect(withoutLeadingZeros(verifier)).toBe(expectedV)
   })
 
+  test('calculate A from a at 1024-bit group', () => {
+    let a = '60975527035CF2AD1989806F0407210BC81EDC04E2762A56AFD529DDDA2D4393'
+    let expectedA = '61d5e490f6f1b79547b0704c436f523dd0e560f0c64115bb72557ec44352e8903211c04692272d8b2d1a5358a2cf1b6e0bfcf99f921530ec8e39356179eae45e42ba92aeaced825171e1e8b9af6d9c03e1327f44be087ef06530e69f66615261eef54073ca11cf5858f0edfdfe15efeab349ef5d76988a3672fac47b0769447b'
+
+    const A = client1024Bit.deriveEphemeralPublicKey(SRPInteger.fromHex(a)).toHex()
+
+    console.log('calculated A', A)
+    expect(withoutLeadingZeros(A)).toBe(expectedA)
+  })
+
   test('calculate k param at 2048-bit group', () => {
     const params = client2048Bit.params()
     console.log(params.N.toString())
