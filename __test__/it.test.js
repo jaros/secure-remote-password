@@ -13,6 +13,8 @@ const api = apisauce.create({
   timeout: 40000
 })
 
+const withoutLeadingZeros = hexString => new BigInteger(hexString, 16).toString(16)
+
 jest.setTimeout(45000)
 
 describe('call api', () => {
@@ -51,10 +53,7 @@ describe('test params', () => {
     console.log(params.N.toString())
     console.log(params.g.toString())
     const kHex = params.k.toHex()
-    console.log(kHex)
-    const kBi = new BigInteger(kHex, 16)
-    console.log(kBi.toString(16))
-    expect(kBi.toString(16)).toBe('1a1a4c140cde70ae360c1ec33a33155b1022df951732a476a862eb3ab8206a5c')
+    expect(kHex).toBe('1a1a4c140cde70ae360c1ec33a33155b1022df951732a476a862eb3ab8206a5c')
   })
 
   test('calculate x param at 1024-bit group', () => {
@@ -71,8 +70,7 @@ describe('test params', () => {
     const xHex = client1024Bit.derivePrivateKey(s, I, P)
 
     console.log('calculated x', xHex)
-
-    expect(xHex).toBe(expectedX)
+    expect(withoutLeadingZeros(xHex)).toBe(expectedX)
   })
 
   test('calculate k param at 2048-bit group', () => {
@@ -80,9 +78,6 @@ describe('test params', () => {
     console.log(params.N.toString())
     console.log(params.g.toString())
     const kHex = params.k.toHex()
-    console.log(kHex)
-    const kBi = new BigInteger(kHex, 16)
-    console.log(kBi.toString(16))
-    expect(kBi.toString(16)).toBe('5b9e8ef059c6b32ea59fc1d322d37f04aa30bae5aa9003b8321e21ddb04e300')
+    expect(withoutLeadingZeros(kHex)).toBe('5b9e8ef059c6b32ea59fc1d322d37f04aa30bae5aa9003b8321e21ddb04e300')
   })
 })
