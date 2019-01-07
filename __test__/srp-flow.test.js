@@ -1,7 +1,7 @@
 /* eslint-env jest */
 
 const client = require('../client').init('default')
-const server = require('../server')
+const server = require('../server').init('default')
 const SRPInteger = require('../lib/srp-integer')
 
 describe('Secure Remote Password', () => {
