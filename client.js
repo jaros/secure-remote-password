@@ -23,12 +23,17 @@ exports.init = (config) => {
   }
 
   const calculateS = (B, a, u, x) => {
+    // N      A large safe prime (N = 2q+1, where q is prime)
+    // g      A generator modulo N
+    // k      Multiplier parameter (k = H(N, g) in SRP-6a, k = 3 for legacy SRP-6)
     const { N, g, k } = params
     // S = (B - kg^x) ^ (a + ux)
     return B.subtract(k.multiply(g.modPow(x, N))).modPow(a.add(u.multiply(x)), N)
   }
 
   const calculateU = (A, B) => {
+    // H()    One-way hash function
+    // PAD()  Pad the number to have the same number of bytes as N
     const { H, PAD } = params
     // u = H(PAD(A), PAD(B))
     return H(PAD(A), PAD(B))
@@ -101,11 +106,8 @@ exports.init = (config) => {
 
     deriveSession: (clientSecretEphemeral, serverPublicEphemeral, salt, username, privateKey) => {
       // N      A large safe prime (N = 2q+1, where q is prime)
-      // g      A generator modulo N
-      // k      Multiplier parameter (k = H(N, g) in SRP-6a, k = 3 for legacy SRP-6)
       // H()    One-way hash function
-      // PAD()  Pad the number to have the same number of bytes as N
-      const { N, g, k, H, PAD } = params
+      const { N, H } = params
 
       // a      Secret ephemeral values
       // B      Public ephemeral values

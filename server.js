@@ -13,19 +13,27 @@ const SRPInteger = require('./lib/srp-integer')
 exports.init = (config) => {
   const params = paramsFun(config)
 
+  const deriveEphemeralPublicKey = (b, verifier) => {
+    // N      A large safe prime (N = 2q+1, where q is prime)
+    // g      A generator modulo N
+    // k      Multiplier parameter (k = H(N, g) in SRP-6a, k = 3 for legacy SRP-6)
+    const { N, g, k } = params
+
+    // v      Password verifier
+    const v = SRPInteger.fromHex(verifier)
+
+    // B = kv + g^b             (b = random number)
+    return k.multiply(v).add(g.modPow(b, N)).mod(N)
+  }
+
   return {
+
+    deriveEphemeralPublicKey,
+
     generateEphemeral: (verifier) => {
-      // N      A large safe prime (N = 2q+1, where q is prime)
-      // g      A generator modulo N
-      // k      Multiplier parameter (k = H(N, g) in SRP-6a, k = 3 for legacy SRP-6)
-      const { N, g, k } = params
-
-      // v      Password verifier
-      const v = SRPInteger.fromHex(verifier)
-
       // B = kv + g^b             (b = random number)
       const b = SRPInteger.randomInteger(params.hashOutputBytes)
-      const B = k.multiply(v).add(g.modPow(b, N)).mod(N)
+      const B = deriveEphemeralPublicKey(b, verifier)
 
       return {
         secret: b.toHex(),
@@ -49,8 +57,8 @@ exports.init = (config) => {
       // v      Password verifier
       const b = SRPInteger.fromHex(serverSecretEphemeral)
       const A = SRPInteger.fromHex(clientPublicEphemeral)
-      const s = SRPInteger.fromHex(salt)
-      const I = String(username)
+      // const s = SRPInteger.fromHex(salt)
+      // const I = String(username)
       const v = SRPInteger.fromHex(verifier)
 
       // B = kv + g^b             (b = random number)
@@ -90,7 +98,8 @@ exports.init = (config) => {
 
       return {
         key: K.toHex(),
-        proof: P.toHex()
+        proof: P.toHex(),
+        secret: S.toHex()
       }
     }
   }

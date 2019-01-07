@@ -6,6 +6,7 @@ export interface Ephemeral {
 export interface Session {
   key: string
   proof: string
+  secret: string
 }
 
 export interface Server {
