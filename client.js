@@ -3,8 +3,15 @@
 const paramsFun = require('./lib/params')
 const SRPInteger = require('./lib/srp-integer')
 
-exports.init = (bitGroup) => {
-  const params = paramsFun(bitGroup)
+/**
+ *
+ * @param config is either config object that defines input params (N,g,...) or the name of bit group that will provide preconfigured params
+ * <p>
+ * bit group name can be '1024-bit', '2048-bit' and 'default' that falls back to '2048-bit'
+ * @returns {{params: (function(): {N, g, k, H, PAD, hashOutputBytes}), generateSalt: (function()), derivePrivateKey: (function(*=, *=, *=): *), deriveVerifier: (function(*=)), generateEphemeral: (function(): {secret, public}), deriveEphemeralPublicKey: (function(*=): SRPInteger), deriveSession: (function(*=, *=, *=, *=, *=): {key: *, proof: *, secret}), calculateSecretEvidence: (function(*=, *=, *=, *, *): *), calculateS: (function(*, *, *, *=): SRPInteger), calculateU: (function(*=, *=): *), verifySession: verifySession}}
+ */
+exports.init = (config) => {
+  const params = paramsFun(config)
 
   const deriveEphemeralPublicKey = (a) => {
     // N      A large safe prime (N = 2q+1, where q is prime)

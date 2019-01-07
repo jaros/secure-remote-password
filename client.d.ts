@@ -29,4 +29,4 @@ export interface Client {
     params: () => Params
 }
 
-export function init(bitGroup: string): Client
+export function init(config: string): Client

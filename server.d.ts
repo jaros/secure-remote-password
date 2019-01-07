@@ -13,4 +13,4 @@ export interface Server {
     deriveSession: (serverSecretEphemeral: string, clientPublicEphemeral: string, salt: string, username: string, verifier: string, clientSessionProof: string) => Session
 }
 
-export function init(bitGroup: string): Server
+export function init(config: string): Server
