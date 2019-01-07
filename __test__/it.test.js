@@ -81,7 +81,7 @@ describe('call api', () => {
 // try to calculate M1 in a simple way like in bouncycastle lib
     const M1 = SRPInteger.fromHex(clientSession.proof).toString()
 
-    console.log('sendind secret proof M1', M1)
+    console.log('sending secret proof M1', M1)
     const stepThree = await api.post('/auth/challenge/m', {}, {
       params: {
         M1,
@@ -92,11 +92,6 @@ describe('call api', () => {
     const serverProof = stepThree.data.M2
     console.log('M2:', serverProof)
     client1024Bit.verifySession(clientEphemeral.public, clientSession, SRPInteger.fromDecimal(serverProof).toHex())
-  })
-
-  test('ping server', async () => {
-    const res = await api.get('/ping')
-    console.log(res)
   })
 })
 
