@@ -1,6 +1,8 @@
 /* eslint-env jest */
 const apisauce = require('apisauce')
 
+const randomHex = require('../lib/random-hex')
+
 const SRPInteger = require('../lib/srp-integer')
 const clientBase = require('../client')
 const client1024Bit = clientBase.init('1024-bit')
@@ -99,6 +101,13 @@ describe('call api', () => {
 })
 
 describe('test params', () => {
+
+  test('random hex', () => {
+    console.log(randomHex())
+    console.log(randomHex((256)))
+    console.log(randomHex((256 / 8)))
+  })
+
   test('calculate k param at 1024-bit group', () => {
     let params = client1024Bit.params()
     console.log(params.N.toString())
