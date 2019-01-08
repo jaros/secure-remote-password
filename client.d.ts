@@ -1,5 +1,11 @@
 import SRPInteger from './lib/srp-integer'
 
+export interface Config {
+    largeSafePrime: string,
+    generatorModulo: string,
+    hashFunction: 'sha256' | 'sha1'
+}
+
 export interface Ephemeral {
   public: string
   secret: string
@@ -30,4 +36,4 @@ export interface Client {
     params: () => Params
 }
 
-export function init(config: string): Client
+export function init(config: Config | string): Client
