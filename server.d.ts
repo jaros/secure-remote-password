@@ -1,17 +1,8 @@
-export interface Ephemeral {
-  public: string
-  secret: string
-}
-
-export interface Session {
-  key: string
-  proof: string
-  secret: string
-}
+import {Config, Ephemeral, Session} from "./models";
 
 export interface Server {
     generateEphemeral: (verifier: string) => Ephemeral
     deriveSession: (serverSecretEphemeral: string, clientPublicEphemeral: string, salt: string, username: string, verifier: string, clientSessionProof: string) => Session
 }
 
-export function init(config: string): Server
+export function init(config: Config | string): Server
