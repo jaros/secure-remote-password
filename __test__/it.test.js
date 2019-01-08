@@ -17,10 +17,10 @@ const withoutLeadingZeros = hexString => new BigInteger(hexString, 16).toString(
 
 jest.setTimeout(45000)
 
-describe.skip('call api', () => {
+describe('call api', () => {
   const srpClient = clientBase.init('1024-bit')
-  const username = 'jaros@github.com'
-  const password = '$uper$imple'
+  const username = 'hugo@github.com'
+  const password = 'hugo$uper$imple'
 
   test('signup', async () => {
     const salt = srpClient.generateSalt()
@@ -29,7 +29,7 @@ describe.skip('call api', () => {
     const challenge = {
       'id': username,
       's': salt,
-      'g': srpClient.params().g.toString(),
+      'g': srpClient.params().g.toString().replace(),
       'N': srpClient.params().N.toString(),
       'v': verifier
     }
