@@ -17,7 +17,7 @@ const withoutLeadingZeros = hexString => new BigInteger(hexString, 16).toString(
 
 jest.setTimeout(45000)
 
-describe('call api', () => {
+describe.skip('call api', () => {
   const srpClient = clientBase.init('1024-bit')
   const username = 'jaros@github.com'
   const password = '$uper$imple'
