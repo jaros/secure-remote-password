@@ -5,20 +5,6 @@ const randomHex = require('../lib/random-hex')
 
 const SRPInteger = require('../lib/srp-integer')
 const clientBase = require('../client')
-const client1024Bit = clientBase.init({
-  largeSafePrime: `
-    EEAF0AB9 ADB38DD6 9C33F80A FA8FC5E8 60726187 75FF3C0B 9EA2314C
-    9C256576 D674DF74 96EA81D3 383B4813 D692C6E0 E0D5D8E2 50B98BE4
-    8E495C1D 6089DAD1 5DC7D7B4 6154D6B6 CE8EF4AD 69B15D49 82559B29
-    7BCF1885 C529F566 660E57EC 68EDBC3C 05726CC0 2FD4CBF4 976EAA9A
-    FD5138FE 8376435B 9FC61D2F C0EB06E3
-  `,
-  generatorModulo: '02',
-  hashFunction: 'sha256',
-  hashOutputBytes: (256 / 8),
-  paddedLength: 256
-})
-const client2048Bit = clientBase.init('default')
 
 const { BigInteger } = require('jsbn')
 
@@ -31,8 +17,8 @@ const withoutLeadingZeros = hexString => new BigInteger(hexString, 16).toString(
 
 jest.setTimeout(45000)
 
-describe.skip('call api', () => {
-  const srpClient = client1024Bit
+describe('call api', () => {
+  const srpClient = clientBase.init('1024-bit')
   const username = 'jaros@github.com'
   const password = '$uper$imple'
 
@@ -72,9 +58,16 @@ describe.skip('call api', () => {
     const challenge = stepOne.data
     console.log(challenge)
 
-    const privateKey = client1024Bit.derivePrivateKey(challenge.s, username, password) // x
+    // init client corresponding to challenge data
+    const client = clientBase.init({
+      hashFunction: 'sha256',
+      generatorModulo: challenge.g,
+      largeSafePrime: SRPInteger.fromDecimal(challenge.N).toHex()
+    })
 
-    const clientEphemeral = client1024Bit.generateEphemeral() // A and a
+    const privateKey = client.derivePrivateKey(challenge.s, username, password) // x
+
+    const clientEphemeral = client.generateEphemeral() // A and a
     console.log('client Aa', clientEphemeral)
     const A = SRPInteger.fromHex(clientEphemeral.public).toString()
 
@@ -89,7 +82,7 @@ describe.skip('call api', () => {
 
     console.log('got server public B', serverEphemeralPublic.toString())
 
-    const clientSession = client1024Bit.deriveSession(clientEphemeral.secret, serverEphemeralPublic.toHex(), challenge.s, username, privateKey)
+    const clientSession = client.deriveSession(clientEphemeral.secret, serverEphemeralPublic.toHex(), challenge.s, username, privateKey)
 // try to calculate M1 in a simple way like in bouncycastle lib
     const M1 = SRPInteger.fromHex(clientSession.proof).toString()
 
@@ -103,11 +96,23 @@ describe.skip('call api', () => {
 
     const serverProof = stepThree.data.M2
     console.log('M2:', serverProof)
-    client1024Bit.verifySession(clientEphemeral.public, clientSession, SRPInteger.fromDecimal(serverProof).toHex())
+    client.verifySession(clientEphemeral.public, clientSession, SRPInteger.fromDecimal(serverProof).toHex())
   })
 })
 
 describe('test params', () => {
+  const client1024Bit = clientBase.init({
+    largeSafePrime: `
+    EEAF0AB9 ADB38DD6 9C33F80A FA8FC5E8 60726187 75FF3C0B 9EA2314C
+    9C256576 D674DF74 96EA81D3 383B4813 D692C6E0 E0D5D8E2 50B98BE4
+    8E495C1D 6089DAD1 5DC7D7B4 6154D6B6 CE8EF4AD 69B15D49 82559B29
+    7BCF1885 C529F566 660E57EC 68EDBC3C 05726CC0 2FD4CBF4 976EAA9A
+    FD5138FE 8376435B 9FC61D2F C0EB06E3
+  `,
+    generatorModulo: '2',
+    hashFunction: 'sha256'
+  })
+
   test('random hex', () => {
     console.log(randomHex())
     console.log(randomHex((256)))
@@ -191,6 +196,7 @@ describe('test params', () => {
   })
 
   test('calculate k param at 2048-bit group', () => {
+    const client2048Bit = clientBase.init('default')
     const params = client2048Bit.params()
     console.log(params.N.toString())
     console.log(params.g.toString())
