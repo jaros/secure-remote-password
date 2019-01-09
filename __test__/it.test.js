@@ -50,10 +50,10 @@ describe('call api', () => {
         login: username
       }
     })
-    const sessionId = stepZero.data
+    const sessionId = stepZero.data.sessionId
 
-    const stepOne = await api.post('/auth/challenge', {}, {
-      params: {sessionId}
+    const stepOne = await api.post('/auth/challenge', {
+      sessionId
     })
     const challenge = stepOne.data
     console.log(challenge)
@@ -71,11 +71,9 @@ describe('call api', () => {
     console.log('client Aa', clientEphemeral)
     const A = clientEphemeral.public
 
-    const stepTwo = await api.post('/auth/challenge/a', {}, {
-      params: {
-        A,
-        sessionId
-      }
+    const stepTwo = await api.post('/auth/challenge/a', {
+      A,
+      sessionId
     })
 
     const serverEphemeralPublic = SRPInteger.fromHex(stepTwo.data.B)
@@ -87,11 +85,9 @@ describe('call api', () => {
     const M1 = clientSession.proof
 
     console.log('sending secret proof M1', M1)
-    const stepThree = await api.post('/auth/challenge/m', {}, {
-      params: {
-        M1,
-        sessionId
-      }
+    const stepThree = await api.post('/auth/challenge/m', {
+      M1,
+      sessionId
     })
 
     const serverProof = stepThree.data.M2
