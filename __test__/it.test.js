@@ -17,20 +17,20 @@ const withoutLeadingZeros = hexString => new BigInteger(hexString, 16).toString(
 
 jest.setTimeout(45000)
 
-describe.skip('call api', () => {
+describe('call api', () => {
   const srpClient = clientBase.init('1024-bit')
-  const username = 'jaros@github.com'
-  const password = '$uper$imple'
+  const username = 'homer@github.com'
+  const password = 'homer$uper$imple'
 
   test('signup', async () => {
     const salt = srpClient.generateSalt()
     const privateKey = srpClient.derivePrivateKey(salt, username, password)
-    const verifier = SRPInteger.fromHex(srpClient.deriveVerifier(privateKey)).toString()
+    const verifier = srpClient.deriveVerifier(privateKey)
     const challenge = {
       'id': username,
       's': salt,
-      'g': srpClient.params().g.toString(),
-      'N': srpClient.params().N.toString(),
+      'g': srpClient.params().g.toHex(),
+      'N': srpClient.params().N.toHex(),
       'v': verifier
     }
     console.log(challenge)
@@ -62,14 +62,14 @@ describe.skip('call api', () => {
     const client = clientBase.init({
       hashFunction: 'sha256',
       generatorModulo: challenge.g,
-      largeSafePrime: SRPInteger.fromDecimal(challenge.N).toHex()
+      largeSafePrime: challenge.N
     })
 
     const privateKey = client.derivePrivateKey(challenge.s, username, password) // x
 
     const clientEphemeral = client.generateEphemeral() // A and a
     console.log('client Aa', clientEphemeral)
-    const A = SRPInteger.fromHex(clientEphemeral.public).toString()
+    const A = clientEphemeral.public
 
     const stepTwo = await api.post('/auth/challenge/a', {}, {
       params: {
@@ -78,13 +78,13 @@ describe.skip('call api', () => {
       }
     })
 
-    const serverEphemeralPublic = SRPInteger.fromDecimal(stepTwo.data.B)
+    const serverEphemeralPublic = SRPInteger.fromHex(stepTwo.data.B)
 
-    console.log('got server public B', serverEphemeralPublic.toString())
+    console.log('got server public B', stepTwo.data.B)
 
     const clientSession = client.deriveSession(clientEphemeral.secret, serverEphemeralPublic.toHex(), challenge.s, username, privateKey)
 // try to calculate M1 in a simple way like in bouncycastle lib
-    const M1 = SRPInteger.fromHex(clientSession.proof).toString()
+    const M1 = clientSession.proof
 
     console.log('sending secret proof M1', M1)
     const stepThree = await api.post('/auth/challenge/m', {}, {
@@ -96,7 +96,7 @@ describe.skip('call api', () => {
 
     const serverProof = stepThree.data.M2
     console.log('M2:', serverProof)
-    client.verifySession(clientEphemeral.public, clientSession, SRPInteger.fromDecimal(serverProof).toHex())
+    client.verifySession(clientEphemeral.public, clientSession, serverProof)
   })
 })
 
