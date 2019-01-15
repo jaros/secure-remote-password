@@ -9,7 +9,7 @@ const clientBase = require('../client')
 const { BigInteger } = require('jsbn')
 
 const api = apisauce.create({
-  baseURL: 'http://localhost:8080',
+  baseURL: 'http://docsx.openag.com:8080',
   timeout: 40000
 })
 
@@ -19,8 +19,8 @@ jest.setTimeout(45000)
 
 describe('call api', () => {
   const srpClient = clientBase.init('1024-bit')
-  const username = 'homer@github.com'
-  const password = 'homer$uper$imple'
+  const username = 'jj@github.com'
+  const password = 'jj$uper$imple'
 
   test('signup', async () => {
     const salt = srpClient.generateSalt()
